@@ -494,6 +494,7 @@ MainTab:AddSwitch(
         end
     end
 )
+WalkOnWaterSwitch:Set(true)
 
 local autoFolder = MainTab:AddFolder("Auto Features")
 
