@@ -953,56 +953,6 @@ whitelistFolder:AddButton(
     end
 )
 
-local targetFolder = KillingTab:AddFolder("Target System")
-
-targetFolder:AddTextBox(
-    "Select Target Player",
-    function(text)
-        if text and text ~= "" then
-            local foundPlayer = findClosestPlayer(text)
-            if foundPlayer then
-                targetPlayer = foundPlayer
-            end
-        end
-    end
-)
-
-targetFolder:AddButton(
-    "Remove Target",
-    function()
-        targetPlayer = nil
-    end
-)
-
-targetFolder:AddSwitch(
-    "Auto Kill Target",
-    function(bool)
-        _G.autoKillTarget = bool
-
-        if bool and targetPlayer then
-            task.spawn(
-                function()
-                    while _G.autoKillTarget and targetPlayer do
-                        if isPlayerAlive(targetPlayer) then
-                            killPlayer(targetPlayer)
-                        end
-                        task.wait(0.1)
-                    end
-                end
-            )
-        end
-    end
-)
-
-targetFolder:AddButton(
-    "Kill Target Once",
-    function()
-        if targetPlayer then
-            killPlayer(targetPlayer)
-        end
-    end
-)
-
 local deathRingFolder = KillingTab:AddFolder("Death Ring")
 _G.deathRingRange = 20
 
@@ -1024,7 +974,7 @@ deathRingFolder:AddSwitch(
             ringPart = Instance.new("Part")
             ringPart.Shape = Enum.PartType.Cylinder
             ringPart.Material = Enum.Material.Neon
-            ringPart.Color = Color3.fromRGB(50, 163, 255)
+            ringPart.Color = Color3.fromRGB(0, 0, 0)
             ringPart.Transparency = 0.6
             ringPart.Anchored = true
             ringPart.CanCollide = false
@@ -2161,7 +2111,6 @@ TeleportTab:AddLabel("Main Locations")
 
 local mainTeleports = {
     {"Spawn", CFrame.new(2, 8, 115)},
-    {"Main Island", CFrame.new(16.07, 9.08, 133.8)},
     {"Tiny Island", CFrame.new(-37.1, 9.2, 1919)},
     {"Beach", CFrame.new(-8, 9, -169.2)},
     {"Secret Area", CFrame.new(1947, 2, 6191)}
@@ -2204,10 +2153,9 @@ end
 TeleportTab:AddLabel("Brawl Areas")
 
 local brawlTeleports = {
-    {"Brawl Regular", CFrame.new(-1849, 20, -6335)},
+    {"Brawl Beach", CFrame.new(-1849, 20, -6335)},
     {"Brawl Desert", CFrame.new(960, 17, -7398)},
-    {"Brawl Lava", CFrame.new(4471, 119, -8836)},
-    {"Beach Brawl", CFrame.new(-1849, 20, -6335)}
+    {"Brawl Lava", CFrame.new(4471, 119, -8836)}
 }
 
 for _, tp in ipairs(brawlTeleports) do
@@ -2360,9 +2308,9 @@ visualFolder:AddButton(
     end
 )
 
-local autoSystemsFolder = MiscTab:AddFolder("Auto Systems")
+local BrawlsFolder = MiscTab:AddFolder("Brawls")
 
-autoSystemsFolder:AddSwitch(
+BrawlsFolder:AddSwitch(
     "Auto Brawl Join",
     function(bool)
         getgenv().autoJoinBrawl = bool
@@ -2380,9 +2328,7 @@ autoSystemsFolder:AddSwitch(
     end
 )
 
-local brawlFolder = MiscTab:AddFolder("Brawl Systems")
-
-brawlFolder:AddSwitch(
+BrawlsFolder:AddSwitch(
     "Auto Win Brawls",
     function(bool)
         getgenv().autoWinBrawl = bool
@@ -2704,31 +2650,6 @@ premiumFolder:AddSwitch(
             if obj.Name:match("Frame$") and obj:IsA("GuiObject") then
                 obj.Visible = not bool
             end
-        end
-    end
-)
-
-premiumFolder:AddSwitch(
-    "Fast Strength",
-    function(bool)
-        local isGrinding = bool
-
-        if not bool then
-            unequipAllPetsPremium()
-            return
-        end
-
-        equipUniquePetPremium("Swift Samurai")
-
-        for i = 1, 14 do
-            task.spawn(
-                function()
-                    while isGrinding do
-                        player.muscleEvent:FireServer("rep")
-                        task.wait()
-                    end
-                end
-            )
         end
     end
 )
