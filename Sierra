@@ -2107,7 +2107,7 @@ giftFolder:AddButton(
     end
 )
 
-TeleportTab:AddLabel("Main Locations")
+local MainFolder = TeleportTab:AddFolder("Main Teleports")
 
 local mainTeleports = {
     {"Spawn", CFrame.new(2, 8, 115)},
@@ -2127,7 +2127,7 @@ for _, tp in ipairs(mainTeleports) do
     )
 end
 
-TeleportTab:AddLabel("Gyms")
+local GymsFolder = TeleportTab:AddFolder("Gyms")
 
 local gymTeleports = {
     {"Muscle King Gym", CFrame.new(-8665.4, 17.21, -5792.9)},
@@ -2150,7 +2150,7 @@ for _, tp in ipairs(gymTeleports) do
     )
 end
 
-TeleportTab:AddLabel("Brawl Areas")
+local BrawlArenasFolder = TeleportTab:AddFolder("Arenas")
 
 local brawlTeleports = {
     {"Brawl Beach", CFrame.new(-1849, 20, -6335)},
@@ -2311,7 +2311,7 @@ visualFolder:AddButton(
 local BrawlsFolder = MiscTab:AddFolder("Brawls")
 
 BrawlsFolder:AddSwitch(
-    "Auto Brawl Join",
+    "Auto Join Brawl",
     function(bool)
         getgenv().autoJoinBrawl = bool
 
