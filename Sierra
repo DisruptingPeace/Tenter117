@@ -1251,27 +1251,95 @@ FarmingTab:AddLabel("Farming Systems")
 
 local fastFarmFolder = FarmingTab:AddFolder("Fast Strength Farm")
 
-fastFarmFolder:AddSwitch(
-    "Fast Strength",
-    function(bool)
-        local isGrinding = bool
+local totalReps = 20
+local threadCount = 1
+local durationSeconds = 2
+local repsPerTick = 1
+local isFarmingActive = false
 
-        if not bool then
-            unequipAllPetsPremium()
-            return
+local function updateRepsPerTick()
+    local ticksPerSecond = 30
+    local totalTicks = durationSeconds * ticksPerSecond
+    local repsPerThread = totalReps / threadCount
+    repsPerTick = repsPerThread / totalTicks
+    if repsPerTick < 1 then
+        repsPerTick = 1
+    else
+        repsPerTick = math.floor(repsPerTick)
+    end
+end
+
+local function repWorker(duration)
+    local startTime = os.clock()
+    while os.clock() - startTime < duration and isFarmingActive do
+        for i = 1, repsPerTick do
+            player.muscleEvent:FireServer("rep")
         end
+        task.wait()
+    end
+end
 
-        equipUniquePetPremium("Swift Samurai")
+local function startFarming()
+    if isFarmingActive then
+        return
+    end
+    isFarmingActive = true
 
-        for i = 1, 14 do
-            task.spawn(
-                function()
-                    while isGrinding do
-                        player.muscleEvent:FireServer("rep")
-                        task.wait()
-                    end
+    for _ = 1, threadCount do
+        task.spawn(
+            function()
+                while isFarmingActive do
+                    repWorker(durationSeconds)
                 end
-            )
+            end
+        )
+    end
+end
+
+local function stopFarming()
+    isFarmingActive = false
+end
+
+fastFarmFolder:AddTextBox(
+    "Total Reps",
+    function(value)
+        local num = tonumber(value)
+        if num and num > 0 then
+            totalReps = num
+            updateRepsPerTick()
+        end
+    end
+)
+
+fastFarmFolder:AddTextBox(
+    "Threads",
+    function(value)
+        local num = tonumber(value)
+        if num and num > 0 then
+            threadCount = math.floor(num)
+            updateRepsPerTick()
+        end
+    end
+)
+
+fastFarmFolder:AddTextBox(
+    "Seconds",
+    function(value)
+        local num = tonumber(value)
+        if num and num > 0 then
+            durationSeconds = num
+            updateRepsPerTick()
+        end
+    end
+)
+
+fastFarmFolder:AddSwitch(
+    "Fast Rep Farm",
+    function(state)
+        if state then
+            startFarming()
+        else
+            stopFarming()
         end
     end
 )
