@@ -1251,95 +1251,27 @@ FarmingTab:AddLabel("Farming Systems")
 
 local fastFarmFolder = FarmingTab:AddFolder("Fast Strength Farm")
 
-local totalReps = 20
-local threadCount = 1
-local durationSeconds = 2
-local repsPerTick = 1
-local isFarmingActive = false
-
-local function updateRepsPerTick()
-    local ticksPerSecond = 30
-    local totalTicks = durationSeconds * ticksPerSecond
-    local repsPerThread = totalReps / threadCount
-    repsPerTick = repsPerThread / totalTicks
-    if repsPerTick < 1 then
-        repsPerTick = 1
-    else
-        repsPerTick = math.floor(repsPerTick)
-    end
-end
-
-local function repWorker(duration)
-    local startTime = os.clock()
-    while os.clock() - startTime < duration and isFarmingActive do
-        for i = 1, repsPerTick do
-            player.muscleEvent:FireServer("rep")
-        end
-        task.wait()
-    end
-end
-
-local function startFarming()
-    if isFarmingActive then
-        return
-    end
-    isFarmingActive = true
-
-    for _ = 1, threadCount do
-        task.spawn(
-            function()
-                while isFarmingActive do
-                    repWorker(durationSeconds)
-                end
-            end
-        )
-    end
-end
-
-local function stopFarming()
-    isFarmingActive = false
-end
-
-fastFarmFolder:AddTextBox(
-    "Total Reps",
-    function(value)
-        local num = tonumber(value)
-        if num and num > 0 then
-            totalReps = num
-            updateRepsPerTick()
-        end
-    end
-)
-
-fastFarmFolder:AddTextBox(
-    "Threads",
-    function(value)
-        local num = tonumber(value)
-        if num and num > 0 then
-            threadCount = math.floor(num)
-            updateRepsPerTick()
-        end
-    end
-)
-
-fastFarmFolder:AddTextBox(
-    "Seconds",
-    function(value)
-        local num = tonumber(value)
-        if num and num > 0 then
-            durationSeconds = num
-            updateRepsPerTick()
-        end
-    end
-)
-
 fastFarmFolder:AddSwitch(
-    "Fast Rep Farm",
-    function(state)
-        if state then
-            startFarming()
-        else
-            stopFarming()
+    "Fast Strength",
+    function(bool)
+        local isGrinding = bool
+
+        if not bool then
+            unequipAllPetsPremium()
+            return
+        end
+
+        equipUniquePetPremium("Swift Samurai")
+
+        for i = 1, 14 do
+            task.spawn(
+                function()
+                    while isGrinding do
+                        player.muscleEvent:FireServer("rep")
+                        task.wait()
+                    end
+                end
+            )
         end
     end
 )
@@ -2107,10 +2039,11 @@ giftFolder:AddButton(
     end
 )
 
-local MainFolder = TeleportTab:AddFolder("Main Teleports")
+TeleportTab:AddLabel("Main Locations")
 
 local mainTeleports = {
     {"Spawn", CFrame.new(2, 8, 115)},
+    {"Main Island", CFrame.new(16.07, 9.08, 133.8)},
     {"Tiny Island", CFrame.new(-37.1, 9.2, 1919)},
     {"Beach", CFrame.new(-8, 9, -169.2)},
     {"Secret Area", CFrame.new(1947, 2, 6191)}
@@ -2127,7 +2060,7 @@ for _, tp in ipairs(mainTeleports) do
     )
 end
 
-local GymsFolder = TeleportTab:AddFolder("Gyms")
+TeleportTab:AddLabel("Gyms")
 
 local gymTeleports = {
     {"Muscle King Gym", CFrame.new(-8665.4, 17.21, -5792.9)},
@@ -2140,25 +2073,6 @@ local gymTeleports = {
 }
 
 for _, tp in ipairs(gymTeleports) do
-    TeleportTab:AddButton(
-        tp[1],
-        function()
-            local char = player.Character or player.CharacterAdded:Wait()
-            local hrp = char:WaitForChild("HumanoidRootPart")
-            hrp.CFrame = tp[2]
-        end
-    )
-end
-
-local BrawlArenasFolder = TeleportTab:AddFolder("Arenas")
-
-local brawlTeleports = {
-    {"Brawl Beach", CFrame.new(-1849, 20, -6335)},
-    {"Brawl Desert", CFrame.new(960, 17, -7398)},
-    {"Brawl Lava", CFrame.new(4471, 119, -8836)}
-}
-
-for _, tp in ipairs(brawlTeleports) do
     TeleportTab:AddButton(
         tp[1],
         function()
